@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<base target="_blank">
+
+    <style>
+        /* ===== Lightbox Styles ===== */
+        .lightbox-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+        .lightbox-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .lightbox-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        .lightbox-overlay.active .lightbox-content img {
+            transform: scale(1);
+        }
+        .lightbox-close {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            z-index: 10001;
+        }
+        .lightbox-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+        .lightbox-caption {
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+            white-space: nowrap;
+        }
+        /* Make project images clickable */
+        .project-image {
+            cursor: zoom-in;
+            position: relative;
+            overflow: hidden;
+        }
+        .project-image::after {
+            content: '\f00e';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            color: white;
+            font-size: 2rem;
+            background: rgba(99, 102, 241, 0.8);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        .project-image:hover::after {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .project-image:hover img {
+            transform: scale(1.05);
+            filter: brightness(0.7);
+        }
+        .project-image img {
+            transition: all 0.3s ease;
+        }
+
+        /* ===== Contact: two-column layout + QR card ===== */
+        .contact-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            align-items: stretch;
+            justify-content: space-between;
+        }
+        .contact-info {
+            flex: 1 1 320px;
+        }
+        .contact-qr {
+            flex: 1 1 280px;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background: rgba(99, 102, 241, 0.06);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            border-radius: 18px;
+            padding: 28px 24px;
+            margin: 0 auto;
+        }
+        .contact-qr .qr-box {
+            background: #ffffff;
+            padding: 12px;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            display: inline-block;
+        }
+        .contact-qr .qr-box img {
+            display: block;
+            width: 180px;
+            height: 180px;
+            border-radius: 6px;
+        }
+        .contact-qr h4 {
+            margin-top: 18px;
+            font-size: 1.05rem;
+            color: var(--primary, #6366f1);
+        }
+        .contact-qr p {
+            margin-top: 4px;
+            font-size: 0.9rem;
+            opacity: 0.75;
+        }
+        .contact-qr .qr-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 12px;
+            font-size: 0.8rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: rgba(99, 102, 241, 0.12);
+            color: var(--primary, #6366f1);
+        }
+        @media (max-width: 768px) {
+            .contact-content {
+                flex-direction: column;
+            }
+            .contact-qr {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="#" class="logo">My Profile</a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About me</a></li>
+                <li><a href="#skills">My skills</a></li>
+                <li><a href="#projects">My Achievements</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="nav-controls">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <p class="hero-greeting" id="heroGreeting">👋 مرحباً، أنا</p>
+                    <h1 class="hero-title" id="heroName">[اسمك هنا]</h1>
+                    <p class="hero-subtitle" id="heroJob">[وظيفتك/مجالك هنا]</p>
+                    <p class="hero-description" id="heroDesc">[اكتب وصف مختصر عن نفسك]</p>
+                    <div class="hero-buttons">
+                        <a href="#projects" class="btn btn-primary">View my works</a>
+                        <a href="#contact" class="btn btn-secondary">Contact Me</a>
+                    </div>
+                    <div class="social-links" id="socialLinks">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <div class="image-wrapper">
+                        <img id="profileImg" src="https://via.placeholder.com/400x400/6366f1/ffffff?text=صورتك" alt="صورتك الشخصية">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">About Me</span>
+                <h2 class="section-title">Who Am I?</h2>
+            </div>
+            <div class="about-content">
+                <div class="about-text">
+                    <p id="aboutText">[اكتب هنا نبذة تفصيلية عن نفسك]</p>
+                        <div class="stat">
+                            <span class="stat-number" id="statProjects">Very Good</span>
+                            <span class="stat-label">Graduation Grade</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number" id="statClients">1</span>
+                            <span class="stat-label">Number of workplaces</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="skills">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">My Skills</span>
+                <h2 class="section-title">What I Excel At</h2>
+            </div>
+            <div class="skills-grid" id="skillsGrid">
+                <div class="skill-card">
+                    <div class="skill-icon"><i class="fas fa-code"></i></div>
+                    <h3>Web Development</h3>
+                    <p>HTML, CSS, JavaScript, React</p>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-icon"><i class="fas fa-palette"></i></div>
+                    <h3>UI/UX Design</h3>
+                    <p>Figma, Adobe XD, UI/UX</p>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-icon"><i class="fas fa-database"></i></div>
+                    <h3>Database Management</h3>
+                    <p>MySQL, MongoDB, Firebase</p>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-icon"><i class="fas fa-mobile-alt"></i></div>
+                    <h3>Mobile Applications</h3>
+                    <p>Flutter, React Native</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="projects">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">My Achievements</span>
+                <h2 class="section-title">My Featured Work</h2>
+            </div>
+            <div class="projects-grid" id="projectsGrid">
+                <div class="project-card">
+                    <div class="project-image">
+                        <img src="#" alt="إنجاز 1">
+                    </div>
+                    <div class="project-info">
+                        <h3>Achievement 1</h3>
+                        <p>Short description of the achievement</p>
+                        <div class="project-tags">
+                            <span class="tag">React</span>
+                            <span class="tag">Node.js</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="project-link"><i class="fas fa-external-link-alt"></i> preview</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image">
+                        <img src="#" alt="إنجاز 2">
+                    </div>
+                    <div class="project-info">
+                        <h3>Achievement 2</h3>
+                        <p>Short description of the achievement</p>
+                        <div class="project-tags">
+                            <span class="tag">Python</span>
+                            <span class="tag">Django</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="project-link"><i class="fas fa-external-link-alt"></i> preview</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image">
+                        <img src="#" alt="إنجاز 3">
+                    </div>
+                    <div class="project-info">
+                        <h3>Achievement 3</h3>
+                        <p>Short description of the achievement</p>
+                        <div class="project-tags">
+                            <span class="tag">Flutter</span>
+                            <span class="tag">Firebase</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="project-link"><i class="fas fa-external-link-alt"></i> معاينة</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- الكروت الجديدة بصور طولية -->
+                <div class="project-card">
+                    <div class="project-image vertical">
+                        <img src="#" alt="إنجاز 4">
+                    </div>
+                    <div class="project-info">
+                        <h3>Achievement 4</h3>
+                        <p>Short description of the achievement</p>
+                        <div class="project-tags">
+                            <span class="tag">Tag 1</span>
+                            <span class="tag">Tag 2</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="project-link"><i class="fas fa-external-link-alt"></i> preview</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image vertical">
+                        <img src="#" alt="إنجاز 5">
+                    </div>
+                    <div class="project-info">
+                        <h3>Achievement 5</h3>
+                        <p>Short description of the achievement</p>
+                        <div class="project-tags">
+                            <span class="tag">Tag 1</span>
+                            <span class="tag">Tag 2</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="project-link"><i class="fas fa-external-link-alt"></i> preview</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image vertical">
+                        <img src="#" alt="إنجاز 6">
+                    </div>
+                    <div class="project-info">
+                        <h3>Achievement 6</h3>
+                        <p>Short description of the achievement</p>
+                        <div class="project-tags">
+                            <span class="tag">Tag 1</span>
+                            <span class="tag">Tag 2</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="project-link"><i class="fas fa-external-link-alt"></i> preview</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Contact</span>
+                <h2 class="section-title">Let's Talk!</h2>
+            </div>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h4>E-Mail</h4>
+                            <p id="contactEmail">youssef556895@gmail.com</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h4>Phone</h4>
+                            <p id="contactPhone">+20 123 456 7890</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h4>Location</h4>
+                            <p id="contactLocation">cairo, egypt</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== QR Code Card (يفتح الإيميل مباشرة عند المسح) ===== -->
+                <div class="contact-qr">
+                    <div class="qr-box">
+                        <img id="contactQrImg" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=mailto%3Ayoussef556895%40gmail.com" alt="QR Code لإيميل التواصل" width="180" height="180">
+                    </div>
+                    <h4>Scan to Email Me</h4>
+                    <p id="contactQrEmail">youssef556895@gmail.com</p>
+                    <span class="qr-hint"><i class="fas fa-qrcode"></i> اسكن بكاميرا الموبايل</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+<p dir="rtl">© 2026 جميع الحقوق محفوظة | صُنع بواسطة <span id="footerName">[اسمك]</span></p>        </div>
+    </footer>
+
+    <!-- Lightbox Modal -->
+    <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+        <div class="lightbox-content" onclick="event.stopPropagation()">
+            <button class="lightbox-close" onclick="closeLightbox()" title="إغلاق">
+                <i class="fas fa-times"></i>
+            </button>
+            <img id="lightboxImage" src="" alt="">
+            <div class="lightbox-caption" id="lightboxCaption"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // ===== URL Normalizer =====
+        const normalizeUrl = (url) => {
+            if (!url) return '';
+            url = url.trim();
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+            return url;
+        };
+        
+        // ===== Lightbox Functions =====
+        function openLightbox(src, caption) {
+            const overlay = document.getElementById('lightboxOverlay');
+            const img = document.getElementById('lightboxImage');
+            const cap = document.getElementById('lightboxCaption');
+            img.src = src;
+            cap.textContent = caption || '';
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            const overlay = document.getElementById('lightboxOverlay');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+            setTimeout(() => {
+                document.getElementById('lightboxImage').src = '';
+            }, 300);
+        }
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeLightbox();
+        });
+
+        // Add click handlers to project images after they are rendered
+        function attachLightboxToImages() {
+            document.querySelectorAll('.project-image img').forEach(img => {
+                img.style.cursor = 'zoom-in';
+                img.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const card = this.closest('.project-card');
+                    const title = card ? card.querySelector('h3')?.textContent || '' : '';
+                    openLightbox(this.src, title);
+                });
+            });
+        }
+
+        // Attach to existing images
+        attachLightboxToImages();
+
+        // ===== Helper: rebuild the contact QR code from an email address =====
+        function updateContactQr(email) {
+            if (!email) return;
+            const qrImg = document.getElementById('contactQrImg');
+            const qrEmailLabel = document.getElementById('contactQrEmail');
+            if (qrImg) {
+                qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent('mailto:' + email);
+            }
+            if (qrEmailLabel) {
+                qrEmailLabel.textContent = email;
+            }
+        }
+
+        // ===== LOAD DATA: tries data.json first (for when the site is uploaded), =====
+        // ===== then falls back to localStorage (for local editing via the admin panel) =====
+        async function loadPortfolioData() {
+            try {
+                const res = await fetch('data.json', { cache: 'no-store' });
+                if (res.ok) {
+                    const jsonData = await res.json();
+                    if (jsonData && Object.keys(jsonData).length > 0) {
+                        return jsonData;
+                    }
+                }
+            } catch (err) {
+                // data.json not found or not reachable (e.g. running from file:// or not uploaded yet) -> fall back below
+            }
+            return JSON.parse(localStorage.getItem('portfolioData') || '{}');
+        }
+
+        function renderPortfolio(data) {
+        // Personal Info
+        if (data.personal) {
+            const p = data.personal;
+            if (p.fullName) {
+                document.getElementById('heroName').textContent = p.fullName;
+                document.getElementById('footerName').textContent = p.fullName;
+                document.title = p.fullName + ' - بروفايلي';
+            }
+            if (p.greeting) document.getElementById('heroGreeting').textContent = p.greeting;
+            if (p.jobTitle) document.getElementById('heroJob').textContent = p.jobTitle;
+            if (p.shortDesc) document.getElementById('heroDesc').textContent = p.shortDesc;
+            if (p.profileImage) document.getElementById('profileImg').src = p.profileImage;
+
+            // Social Links - with normalizeUrl and rel="noopener noreferrer"
+            const socialContainer = document.getElementById('socialLinks');
+            let socialHTML = '';
+            if (p.whatsapp) socialHTML += `<a href="${normalizeUrl(p.whatsapp)}" class="social-link" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>`;
+            if (p.linkedin) socialHTML += `<a href="${normalizeUrl(p.linkedin)}" class="social-link" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin-in"></i></a>`;
+            if (p.facebook) socialHTML += `<a href="${normalizeUrl(p.facebook)}" class="social-link" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>`;
+            if (p.instagram) socialHTML += `<a href="${normalizeUrl(p.instagram)}" class="social-link" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>`;
+            if (socialHTML) socialContainer.innerHTML = socialHTML;
+        }
+
+        // About
+        if (data.about && data.about.aboutText) {
+            document.getElementById('aboutText').textContent = data.about.aboutText;
+        }
+
+        // Stats
+        if (data.stats) {
+            if (data.stats.expYears) document.getElementById('statExp').textContent = data.stats.expYears;
+            if (data.stats.projectsCount) document.getElementById('statProjects').textContent = data.stats.projectsCount;
+            if (data.stats.clientsCount) document.getElementById('statClients').textContent = data.stats.clientsCount;
+        }
+
+        // Contact
+        if (data.contact) {
+            if (data.contact.email) {
+                document.getElementById('contactEmail').textContent = data.contact.email;
+                updateContactQr(data.contact.email);
+            }
+            if (data.contact.phone) document.getElementById('contactPhone').textContent = data.contact.phone;
+            if (data.contact.location) document.getElementById('contactLocation').textContent = data.contact.location;
+        }
+
+        // If no saved data yet, make sure the QR matches the default email shown on the page
+        if (!data.contact || !data.contact.email) {
+            updateContactQr(document.getElementById('contactEmail').textContent.trim());
+        }
+
+        // Skills
+        const skillsGrid = document.getElementById('skillsGrid');
+        if (data.skills && data.skills.length > 0) {
+            skillsGrid.innerHTML = data.skills.map(skill => `
+                <div class="skill-card">
+                    <div class="skill-icon"><i class="fas ${skill.icon}"></i></div>
+                    <h3>${skill.title}</h3>
+                    <p>${skill.desc}</p>
+                </div>
+            `).join('');
+        }
+
+        // ===== PROJECTS WITH IMAGES =====
+        const projectsGrid = document.getElementById('projectsGrid');
+        if (data.projects && data.projects.length > 0) {
+            const colors = ['6366f1', '8b5cf6', 'ec4899', '10b981', 'f59e0b'];
+            projectsGrid.innerHTML = data.projects.map((project, i) => {
+                // add "vertical" class when orientation is vertical
+                const isVertical = project.orientation === 'vertical';
+                const imageClass = 'project-image' + (isVertical ? ' vertical' : '');
+                const objectFit = isVertical ? 'contain' : 'cover';
+
+                // render tags
+                const tagsArray = project.tags ? project.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
+                const tagsHTML = tagsArray.map(tag => `<span class="tag">${tag}</span>`).join('');
+
+                return `
+                <div class="project-card">
+                    <div class="${imageClass}">
+                        ${project.image 
+                            ? `<img src="${project.image}" alt="${project.title}" style="width: 100%; height: 100%; object-fit: ${objectFit};">`
+                            : `<img src="https://via.placeholder.com/600x400/${colors[i % 5]}/ffffff?text=${encodeURIComponent(project.title)}" alt="${project.title}">`
+                        }
+                    </div>
+                    <div class="project-info">
+                        <h3>${project.title}</h3>
+                        <p>${project.desc}</p>
+                        ${tagsHTML ? `<div class="project-tags">${tagsHTML}</div>` : ''}
+                        <div class="project-links">
+                            ${project.link !== '#' && project.link ? `<a href="${normalizeUrl(project.link)}" class="project-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt"></i> preview</a>` : ''}
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+            // Attach lightbox to newly rendered project images
+            attachLightboxToImages();
+        }
+
+        // Appearance
+        if (data.appearance) {
+            if (data.appearance.primaryColor) {
+                document.documentElement.style.setProperty('--primary', data.appearance.primaryColor);
+            }
+            if (data.appearance.secondaryColor) {
+                document.documentElement.style.setProperty('--secondary', data.appearance.secondaryColor);
+            }
+            if (data.appearance.accentColor) {
+                document.documentElement.style.setProperty('--accent', data.appearance.accentColor);
+            }
+        }
+        } // end renderPortfolio
+
+        // ===== Init =====
+        loadPortfolioData().then(renderPortfolio);
+    </script>
+</body>
+</html>
